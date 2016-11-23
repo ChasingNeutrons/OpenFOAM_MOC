@@ -18,8 +18,6 @@ do{
 	{	
 		List<label> indList=cellIndices[lines];		//list of indices of cells intersected
 		segNum=raySegments[lines];			//number of segments of ray
-		List<scalar> yIn;				//set list of local y-entry co-ords
-		List<scalar> xIn;				//set list of local x-entry co-ords
 		List<scalar> lengthList=segLengths[lines];	//list of azimuthal ray lengths
 		label i0=angleInd[lines];			//index of azimuthal angle
 
@@ -57,23 +55,19 @@ do{
 					for(int k=c1; k!=c2+m; k+=m)
 					{
 						label ind=indList[k];
-						A=area[ind];
 						sigT=sigmaT[energyI][ind];
-						scalar s=lengthList[k];
-						scalar normFac=A/approxAreaList[ind];
-						scalar t=s*normFac;
+						scalar normFac=area[ind]/approxAreaList[ind];
+						scalar t=lengthList[k]*normFac;
 
 						//Calculate expansion coefficients
-						//Should the 4 pi still be here for the angular source?
-						qb=one_over_4_PI*qm[energyI][i][j][ind];
+						//Removed 4PI factor - placed in calculation of source terms 
+						qb=qm[energyI][i][j][ind];
 								
 						//Calculate change in angular flux
 						delta=(afluxIn - qb/sigT) * f1[k];
 
 						//Increment average angular flux and flux moments
-						psi[energyI][i][j][ind] += delta/sigT 
-							+ t*qb/(sinT*sigT);
-						//(1+xIn[k]+yIn[k])*
+						psi[energyI][i][j][ind] += (delta + t*qb/sinT)/sigT;
 
 						//Calculate outgoing angular flux
 						afluxIn -= delta;

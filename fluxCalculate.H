@@ -26,7 +26,7 @@ for(label i=0; i<naz; i++)
 		for(label j=0; j<npo; j++)
 		{
 			wt = wa*wsintheta[j];	//combined polar weight and sintheta with azimuthal
-			mu=costheta[j];		//polar cosine for calculating spherical harmonic	
+			mu=costheta[j];		//polar cosine for calculating spherical harmonic
 
 			fluxInc=psi[energyI][i][j].internalField()*wt/area;
 			flux[energyI].internalField()+=fluxInc;
@@ -36,7 +36,9 @@ for(label i=0; i<naz; i++)
 			{
 				for(label r=-l; r<l+1; r++)
 				{
-					fluxMo[energyI][l][r+l].internalField()+=fluxInc*sphericalHarmonic(l,r,p,mu);
+					//Spherical harmonic used here is normalised to 1 i.e. int(R*R)d(omega)=1
+					// philr = integral(psi * Ylr)d(omega)
+					fluxMo[energyI][l][r+l].internalField()+=fluxInc*(sphericalHarmonic(l,r,p,mu)+sphericalHarmonic(l,r,p,-mu))/2.0;
 				}
 			}
 		}

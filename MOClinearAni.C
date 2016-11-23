@@ -14,8 +14,8 @@ Description
     2D MOC solver for rectangular geometry. Solves multi-group, multi-region problems.
     (Soon) Capable of dealing with anisotropic and linear source problems. 
 
-    Given a cuboidal mesh, traces rays from the bottom x-boundary and left and right
-    y-boundaries. Ray tracing information is stored and used during the transport sweep
+    Given a cuboidal mesh, traces rays from the bottom y-boundary and left and right
+    x-boundaries. Ray tracing information is stored and used during the transport sweep
     to calculate group scalar fluxes and criticality.
 
     Settings for solver are specified in MOCsettings file in the system folder:
@@ -81,6 +81,11 @@ int main(int argc, char *argv[])
     label segNum, ind, i0;
     int c1, c2, m, refRay, refDir;
 
+    //Doesn't work! Need to investigate!
+    //Homogeneous acceleration
+    //Info<<"Initialising flux using energy rebalance"<<endl; 
+    //#include "FMRebalance.H"
+
     //Initialise fission source, flux, angular flux and
     //previous iterate of each
     #include "initialiseFluxSource.H"
@@ -144,7 +149,6 @@ int main(int argc, char *argv[])
 		{
 			//TRANSPORT SWEEP
 			#include "transportSweep.H"
-			Info<<"done"<<endl;
 		}else{
 			//Transport Sweep with anisotropic source
 			#include "transportSweepAngularFlux.H"
@@ -153,6 +157,10 @@ int main(int argc, char *argv[])
 			#include "fluxCalculate.H"
 		}			
 	}
+	
+	//Doesn't work! Need to investigate!
+	//Homogeneous energy group acceleration
+	//#include "FMRebalance.H"
 
 	//ADD THIS!!!
 	//Chebyshev acceleration
@@ -166,7 +174,6 @@ int main(int argc, char *argv[])
 	oldK=keff;
 	keff *= volFissions/prevFissions;
 	prevFissions=volFissions;
-	
 	
         //Q update and calculate error
 	if(anisotropy==0)
@@ -182,14 +189,13 @@ int main(int argc, char *argv[])
 		#include "calcFissionSourceAni.H"
 	}
 
-	//Calculate error and update oldQ - calculate error on fission source rather than total source perhaps?
+	//Calculate error - on fission source rather than flux perhaps?
 	e2=0.0;
 	scalar eT=0.0;
 	forAll(flux, energyI)
 	{
 		eT=max(mag(flux[energyI].internalField()-oldFlux[energyI].internalField())/flux[energyI].internalField());
 		if(eT>e2){e2=eT;}
-		//oldQ[energyI]=Q[energyI];
 		oldFlux[energyI]=flux[energyI];
 	}
 	e3=mag(keff-oldK)/mag(keff);

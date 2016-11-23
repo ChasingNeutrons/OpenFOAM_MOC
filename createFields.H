@@ -1,7 +1,5 @@
 
 Info<< "Creating scalar flux\n" << endl;
-//Finish fixing this up...
-
 volScalarField defaultFlux
 (
 	IOobject

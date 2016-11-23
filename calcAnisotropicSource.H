@@ -14,20 +14,21 @@ forAll(qm, energyI)
 
 			for(label energyJ=0; energyJ<energyGroups; energyJ++)
 			{
-				//Add all flux moments to fission or just zeroth moment?
-				qm[energyI][i][j] += one_over_4_PI*chi[energyI] * nuSigmaEff[energyJ] * flux[energyJ]/keff;
-				qm[energyI][i][j] += one_over_4_PI*sigmaS[energyI][energyJ][0]*flux[energyJ];
+				//Fission source = one_over_pi*nuSigmaEff*integral(psi)*d(omega)
+				//integral(psi)*d(omega) = normal scalar flux
+				qm[energyI][i][j] += one_over_4_PI * chi[energyI] * nuSigmaEff[energyJ] * flux[energyJ]/keff;
+				
 				for(label l=0; l<anisotropy+1; l++)
 				{
 					for(label r=-l; r<l+1; r++)
 					{
-						//Include factor of 2 to account for only covering half of polar angles
-						//scalar R=2*sphericalHarmonic(l, r, p, mu);
-						//qm[energyI][i][j] += R * sigmaS[energyI][energyJ][l] * fluxMo[energyJ][l][r+l];
+						//Scattering source = Rlr(phi,theta)*sigmaSl*fluxlr
+						scalar R1=sphericalHarmonic(l, r, p, mu);
+						scalar R2=sphericalHarmonic(l, r, p, -mu);
+						qm[energyI][i][j] += (R1+R2) * sigmaS[energyI][energyJ][l] * fluxMo[energyJ][l][r+l]/2.0;
 						
 					}
-				}
-				
+				}				
 			}
 		}
 	}

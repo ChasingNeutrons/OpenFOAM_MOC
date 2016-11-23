@@ -4,6 +4,11 @@ List<List<List<List<scalar> > > > oldAflux(energyGroups);
 Info<<"Initialising fluxes and sources"<<endl;
 if(anisotropy>0)
 {
+	//Initialise zeroth flux moment for calculating initial scattering source
+	forAll(flux, energyI)
+	{
+		fluxMo[energyI][0][0]=flux[energyI]*Foam::sqrt(one_over_4_PI);
+	}
 	#include "calcAnisotropicSource.H"
 }
 forAll(flux, energyI)
